@@ -6,37 +6,39 @@
 
 using namespace std; 
 
-struct Log{
-    int id; 
-    string status; 
-    int timestamp; 
-};
+;
 class Solution{
 public: 
       vector<int> exclusiveTime(int n, vector<string>& logs){
-         stack<Log> st; 
-         vector<int> res(n,0); 
-         for(auto log:logs){
-           stringstream ss(log); 
-           string temp, temp2, temp3; 
-           getline(ss, temp, ':'); 
-           getline(ss, temp2, ':'); 
-           getline(ss, temp3, ':'); 
-           Log item={stoi(temp), temp2, stoi(temp3)}; 
-           if(item.status=="start"){
-             st.push(item); 
-           }else{
-             assert(st.top().id==item.id); 
-             int timeadded = (item.timestamp-st.top().timestamp)+1; 
-             res[item.id]+=timeadded; 
-             st.pop(); 
-             if(!st.empty()){
-               assert(st.top().status=="start"); 
-               res[st.top().id] -=timeadded; 
-             }
-           }
-         }
-         return res; 
+         vector<int> result(n, 0);
+         stack<int> st;
+         int prevTime = 0;
+
+         for (const string& log : logs) {
+            
+            stringstream ss(log);
+            string idStr, typeStr, timeStr;
+            getline(ss, idStr, ':');
+            getline(ss, typeStr, ':');
+            getline(ss, timeStr, ':');
+
+            int id = stoi(idStr);
+            int time = stoi(timeStr);
+
+            if (typeStr == "start") {
+                if (!st.empty()) {
+                    result[st.top()] += time - prevTime;
+                }
+                st.push(id);
+                prevTime = time;
+            } else { // "end"
+                result[st.top()] += time - prevTime + 1;
+                st.pop();
+                prevTime = time + 1;
+            }
+        }
+
+        return result;
       }
 }; 
 int main(){
